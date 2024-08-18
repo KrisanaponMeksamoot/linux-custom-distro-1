@@ -35,7 +35,7 @@ cd build
 
 # https://kernel.org/
 echo linux
-if test ! -d linux-6.10.5; then wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.10.5.tar.xz; fi
+if test ! -d linux-6.10.5; then wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.10.5.tar.xz; tar -xf linux-6.10.5.tar.xz; fi
 cd linux-6.10.5
 make all -j$(nproc) INSTALL_MOD_PATH=$INSTALL_TARGET
 check_err
