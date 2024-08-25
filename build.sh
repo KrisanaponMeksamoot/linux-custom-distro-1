@@ -29,7 +29,34 @@ ln -s -T /proc/self/fd/0 stdin
 ln -s -T /proc/self/fd/1 stdout
 ln -s -T /proc/self/fd/2 stderr
 cd ..
+
+# init apt
+mkdir -p etc/apt/sources.list.d
+mkdir -p etc/apt/trusted.gpg.d
+mkdir -p etc/apt/preferences.d
+cp /etc/apt/sources.list etc/apt
+cp /etc/apt/trusted.gpg.d/* etc/apt/trusted.gpg.d
+
+cd var
+mkdir backups cache crash lib local log opt tmp
+
+cd lib
+mkdir -p apt/lists/partial
+mkdir -p apt/state/directories
+
+mkdir -p dpkg
+cd dpkg
+mkdir alternatives info parts diversions
+touch status available
 cd ..
+
+cd .. # lib
+
+mkdir log/apt
+
+cd .. # var
+
+cd .. # target
 
 cd build
 
@@ -48,56 +75,56 @@ exists_or_clone() {
 	if test ! -d $1; then git clone --depth 1 --single-branch $2; fi
 }
 
-# https://git.busybox.net/busybox/
-echo busybox
-exists_or_clone busybox https://git.busybox.net/busybox
-cd busybox
-make CONFIG_PREFIX=$INSTALL_TARGET install -j$(nproc)
-check_err
-cd ..
+# # https://git.busybox.net/busybox/
+# echo busybox
+# exists_or_clone busybox https://git.busybox.net/busybox
+# cd busybox
+# make CONFIG_PREFIX=$INSTALL_TARGET install -j$(nproc)
+# check_err
+# cd ..
 
-build_with_configure() {
-	echo $1
-	exists_or_clone $1 $2
-	cd $1
-	./configure --prefix=$INSTALL_TARGET
-	make install -j$(nproc)
-	check_err
-	cd ..
-}
+# build_with_configure() {
+# 	echo $1
+# 	exists_or_clone $1 $2
+# 	cd $1
+# 	./configure --prefix=$INSTALL_TARGET
+# 	make install -j$(nproc)
+# 	check_err
+# 	cd ..
+# }
 
-build_with_configure glibc git://sourceware.org/git/glibc.git
-build_with_configure libncurses https://github.com/projectceladon/libncurses.git
-build_with_configure ncurses https://github.com/projectceladon/libncurses.git
-build_with_configure zlib https://github.com/projectceladon/libncurses.git
+# build_with_configure glibc git://sourceware.org/git/glibc.git
+# build_with_configure libncurses https://github.com/projectceladon/libncurses.git
+# build_with_configure ncurses https://github.com/projectceladon/libncurses.git
+# build_with_configure zlib https://github.com/projectceladon/libncurses.git
 
-# https://github.com/alsa-project/alsa-lib.git
-echo alsa-lib
-exists_or_clone alsa-lib https://github.com/alsa-project/alsa-lib.git
-cd alsa-lib
-./gitcompile --disable-aload --prefix=$INSTALL_TARGET/usr --libdir=$INSTALL_LIB_DIR \
-	  --with-plugindir=$INSTALL_LIB_DIR/alsa-lib
-	  --with-pkgconfdir=$INSTALL_LIB_DIR/pkgconfig
-check_err
-cd ..
+# # https://github.com/alsa-project/alsa-lib.git
+# echo alsa-lib
+# exists_or_clone alsa-lib https://github.com/alsa-project/alsa-lib.git
+# cd alsa-lib
+# ./gitcompile --disable-aload --prefix=$INSTALL_TARGET/usr --libdir=$INSTALL_LIB_DIR \
+# 	  --with-plugindir=$INSTALL_LIB_DIR/alsa-lib
+# 	  --with-pkgconfdir=$INSTALL_LIB_DIR/pkgconfig
+# check_err
+# cd ..
 
-# https://github.com/alsa-project/alsa-utils.git
-echo alsa-utils
-exists_or_clone alsa-utils https://github.com/alsa-project/alsa-utils.git
-cd alsa-utils
-./gitcompile --prefix=$INSTALL_TARGET \
-	  --with-systemdsystemunitdir="$INSTALL_TARGET/$(pkg-config systemd --variable=systemdsystemunitdir)" \
-	  --with-udev-rules-dir="$INSTALL_TARGET/$(pkg-config udev --variable=udevdir)"
-check_err
-cd ..
+# # https://github.com/alsa-project/alsa-utils.git
+# echo alsa-utils
+# exists_or_clone alsa-utils https://github.com/alsa-project/alsa-utils.git
+# cd alsa-utils
+# ./gitcompile --prefix=$INSTALL_TARGET \
+# 	  --with-systemdsystemunitdir="$INSTALL_TARGET/$(pkg-config systemd --variable=systemdsystemunitdir)" \
+# 	  --with-udev-rules-dir="$INSTALL_TARGET/$(pkg-config udev --variable=udevdir)"
+# check_err
+# cd ..
 
-# https://git.ffmpeg.org/ffmpeg.git
-echo ffmpeg
-exists_or_clone ffmpeg https://git.ffmpeg.org/ffmpeg.git
-cd ffmpeg
-./configure --prefix=$INSTALL_TARGET --enable-libx264
-make install -j$(nproc)
-check_err
-cd ..
+# # https://git.ffmpeg.org/ffmpeg.git
+# echo ffmpeg
+# exists_or_clone ffmpeg https://git.ffmpeg.org/ffmpeg.git
+# cd ffmpeg
+# ./configure --prefix=$INSTALL_TARGET --enable-libx264
+# make install -j$(nproc)
+# check_err
+# cd ..
 
 cd ..
